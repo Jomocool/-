@@ -10,11 +10,11 @@
 - **数据库管理系统：**操纵和管理数据库的大型软件
 - **SQL：**操作关系型数据库的编程语言，定义了一套操作关系型数据库统一标准
 
-### 2.连接MySQL
+#### 1.2连接MySQL
 
 cmd：mysql -u root -p
 
-### 3.数据库模型
+#### 1.3数据库模型
 
 - **关系型数据库：**建立在关系型基础上，由多张相互连接的二维表组成的数据库
 
@@ -22,6 +22,22 @@ cmd：mysql -u root -p
 
   使用SQL语言操作，标准统一，使用方便
 
-### 4.数据模型
+#### 1.4数据模型
 
-![1](C:\Users\86135\OneDrive\文档\数据库\MySQL-img\1.png)
+![](https://github.com/Jomocool/MySQL/blob/main/MySQL-img/1.png)
+
+### 2.SQL
+
+#### 2.1通用语法
+
+![](https://github.com/Jomocool/MySQL/blob/main/MySQL-img/2.png)
+
+#### 2.2SQL分类
+
+![](https://github.com/Jomocool/MySQL/blob/main/MySQL-img/3.png)
+
+#### 2.3DDL
+
+![](https://github.com/Jomocool/MySQL/blob/main/MySQL-img/4.png)
+
+![](https://github.com/Jomocool/MySQL/blob/main/MySQL-img/5.png)
