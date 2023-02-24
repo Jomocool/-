@@ -483,3 +483,232 @@ select e.name ename,e.age eage from emp e where e.age>15 order by eage asc;
 -- limit
 ```
 
+#### 2.6DCL
+
+##### 2.6.1介绍
+
+![](https://github.com/Jomocool/MySQL/blob/main/MySQL-img/42.png)
+
+##### 2.6.2管理用户
+
+![](https://github.com/Jomocool/MySQL/blob/main/MySQL-img/31.png)
+
+```sql
+-- 创建用户itcast，只能够在当前主机localhost访问，密码123456
+create user 'itcast'@'localhost' identified by '123456';
+
+-- 创建用户heima，可以在任意主机访问该数据库，密码123456
+create user 'heima'@'%' identified by '123456';
+
+-- 修改用户heima的访问密码为1234
+alter user 'heima'@'%' identified with mysql_native_password by '1234';
+
+-- 删除itcast@localhost用户
+drop user 'itcast'@'localhost';
+```
+
+##### 2.6.3权限控制
+
+![](https://github.com/Jomocool/MySQL/blob/main/MySQL-img/32.png)
+
+![](https://github.com/Jomocool/MySQL/blob/main/MySQL-img/33.png)
+
+```sql
+-- 管理用户对root某个数据库库的权限
+-- 查询权限
+show grants for 'heima'@'%';-- GRANT USAGE ON *.* TO `heima`@`%`，仅仅只是可以登录
+
+-- 授予权限
+grant all on itcast.* to 'heima'@'%';
+
+-- 撤销权限
+revoke all on itcast.* from 'heima'@'%';
+```
+
+### 3.函数
+
+**函数：**一段可以被另一段程序调用的程序或代码
+
+#### 3.1字符串函数
+
+![](https://github.com/Jomocool/MySQL/blob/main/MySQL-img/34.png)
+
+```sql
+-- concat
+select contact('Hello','MySQL');-- 拼接字符串
+
+-- lower
+select lower('Hello');-- 小写Hello
+
+-- upper
+select upper('Hello');-- 大写Hello
+
+-- lpad
+select lpad('01',5,'-');-- 从01左边用-补充到长度5
+
+-- rpad
+select rpad('01',5,'-');-- 从01右边用-填充到长度5
+
+-- trim
+select trim(' Hello  MySQL  ');-- 去除头部和尾部空格
+
+-- substring
+select substring('Hello MySQL',1,5);-- 索引从1开始而不是0，Hello
+
+-- 1.由于业务需求变更，企业员工的工号，统一为5位数，目前不足5位数的全部在前面补0,。比如：1号员工的工号为00001
+update emp set workno = lpad(workno,5,'0');-- update更新表，set设置工号
+```
+
+#### 3.2数值函数
+
+![](https://github.com/Jomocool/MySQL/blob/main/MySQL-img/35.png)
+
+```sql
+-- ceil
+select ceil(1.5);-- 向上取整
+
+-- floor
+select floor(1.1)-- 向下取整
+
+-- mod
+select mod(3,4);-- 3%4
+
+-- rand
+select rand();-- 0~1之间的随机数(小数)
+
+-- round
+select round(2.345,2);-- 对2.345四舍五入，保留2位小数
+
+-- 2.通过数据库的函数，生成一个六位数的随机验证码
+select rand();-- 随机
+select rand()*1000000;-- 六位，但是会出现0.0...的情况，所以需要补位
+select lpad(round(rand()*1000000,0),6,'0');
+```
+
+#### 3.3日期函数
+
+![](https://github.com/Jomocool/MySQL/blob/main/MySQL-img/36.png)
+
+```sql
+-- curdate()
+select curdate();-- 当前日期
+
+-- curtime()
+select curtime();-- 当前时间
+
+-- now()
+select now();-- 当前日期时间
+
+-- YEAR(),MONTH(),DAY()
+select YEAR(now());
+select MONTH(now());
+select DAY(now());
+
+-- date_add
+select date_add(now(),INTERVAL 70 DAY);-- 当前往后推70天的日期
+
+-- datediff
+select datediff('2021-12-01','2021-10-01');-- 两日期间的差值天数
+
+-- 3.查询所有员工的入职天数，并根据入职天数倒序排序
+select name,datediff(curdate(),entrydate) as 'entrydays' from emp order by entrydays desc;
+```
+
+#### 3.4流程函数
+
+![](https://github.com/Jomocool/MySQL/blob/main/MySQL-img/37.png)
+
+```sql
+-- if
+select if(true,'Ok','Error');-- true就返回Ok，否则就返回Error
+
+-- ifnull
+select ifnull('Ok','Default');-- Ok不为null，返回Ok
+select ifnull('','Default');-- ‘’空串不为null，返回空串
+select ifnull(null,'Default');-- 返回Default
+
+-- case when then else end
+-- 需求：查询emp表的员工姓名和工作地址(北京/上海 ----> 一线城市，其他 ----> 二线城市)
+select
+    name,
+    (case workaddress when '北京' then '一线城市' when '上海' then '一线城市' else '二线城市' end) as '工作地址'
+from emp;
+
+-- 4.统计班级各个学员的成绩，展示的规则如下：
+-- >=85，展示优秀
+-- >=60，展示及格
+-- 否则，不及格
+create table score(
+    id int comment'ID',
+    name varchar(10) comment'姓名',
+    math int comment'数学',
+    english int comment'英语',
+    chinese int comment'语文'
+)comment '学员成绩表';
+insert into score(id,name,math,english,chinese)VALUES(1,'Tom',67,88,95),(2,'Rose',23,66,90),(3,'Jack',56,98,76);
+
+select
+    id,
+    name,
+    (case when math>=85 then '优秀' when math>=60 then '及格' else '不及格' end)'数学',
+    (case when english>=85 then '优秀' when english>=60 then '及格' else '不及格' end)'英语',
+    (case when chinese>=85 then '优秀' when chinese>=60 then '及格' else '不及格' end)'语文'
+from score;
+```
+
+### 4.约束
+
+#### 4.1概述
+
+![](https://github.com/Jomocool/MySQL/blob/main/MySQL-img/38.png)
+
+#### 4.2示例
+
+```sql
+create table user(
+    id int primary key auto_increment comment '主键',
+    name varchar(10) not null unique comment '姓名',
+    age int check(age>0 && age<=120) comment '年龄',
+    status char(1) default '1' comment '状态',
+    gender char(1) comment '性别'
+)comment '用户表';
+
+-- 插入数据
+-- id是主键，自动维护，不用手动插入。分别为1/2/3
+insert into user(name,age,status,gender) values ('Tom1',19,'1','男'),('Tom2',25,'0','男');
+insert into user(name,age,status,gender) values ('Tom3',19,'1','男');
+
+insert into user(name,age,status,gender) values (null,19,'1','男');-- 无效，name不能为null
+insert into user(name,age,status,gender) values ('Tom3',19,'1','男');-- 无效，name重复，不唯一
+
+-- 虽然上面没有成功插入，但是提交了申请，所以id4被占用了，因此下面的是id5
+insert into user(name,age,status,gender) values ('Tom4',80,'1','男');
+insert into user(name,age,status,gender) values ('Tom5',-1,'1','男');-- 无效，年龄小于0了
+insert into user(name,age,status,gender) values ('Tom5',121,'1','男');-- 无效，年龄大于120
+
+insert into user(name,age,gender) values ('Tom5',120,'男');-- status默认值是1
+```
+
+#### 4.3外键约束
+
+让两张表建立连接，从而保证数据的一致性和完整性
+
+![](https://github.com/Jomocool/MySQL/blob/main/MySQL-img/39.png)
+
+![](https://github.com/Jomocool/MySQL/blob/main/MySQL-img/40.png)
+
+![](https://github.com/Jomocool/MySQL/blob/main/MySQL-img/41.png)
+
+```sql
+-- 前面已经创建好了一张表emp
+-- 添加外键
+alter table emp add constraint fk_emp_dept_id foreign key(dept_id) refrences dept(id);
+-- 创建外键约束后，不能随意删除父表的内容，因为关联到子表，从而保证了数据的一致性和完整性
+
+-- 删除外键
+alter table emp drop foreign key fk_emp_dept_id;
+
+-- 删除/更新行为
+alter table emp add constraint fk_emp_dept_id foreign key(dept_id) refrences dept(id) on update on delete cascade;
+```
+
