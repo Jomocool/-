@@ -47,8 +47,6 @@ mysql> SELECT * FROM Websites;#读取数据表的所有信息
 5 rows in set (0.01 sec)
 ```
 
-
-
 SQL对大小写不敏感：SELECT与select相同
 
 
