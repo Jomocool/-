@@ -2,7 +2,9 @@
 
 [SQL 教程 | 菜鸟教程 (runoob.com)](https://www.runoob.com/sql/sql-tutorial.html)
 
-## 1. SQL简介
+## 一、SQL教程
+
+### 1. SQL简介
 
 **SQL**(Structuted Query Language:结构化查询语言)是用于管理关系数据库管理系统（RDBMS）的标准的计算机语言。SQL的范围包括数据插入、查询、更新和删除，数据库模式创建和修改，以及数据访问控制。
 
@@ -25,7 +27,7 @@
 
 
 
-## 2. SQL语法
+### 2. SQL语法
 
 一个数据库通常包含一个或多个表。每个表中有一个名字标识，表中包含带有数据的记录（行）
 
@@ -69,7 +71,7 @@ SQL对大小写不敏感：SELECT与select相同
 
 
 
-## 3. SQL SELECT语句
+### 3. SQL SELECT语句
 
 SELECT语句用于从数据库中选取数据
 
@@ -98,7 +100,7 @@ SELECT * from table_name;#选择所有字段
 
 
 
-## 4. SQL SELECT DISTINCT语句
+### 4. SQL SELECT DISTINCT语句
 
 在表中，一个列可能会包含多个重复值，SQL SELECT DISTINCT语句用于返回唯一不同的值
 
@@ -119,7 +121,7 @@ SELECT DISTINCT country FROM Websites;
 
 
 
-## 5. SQL WHERE子句
+### 5. SQL WHERE子句
 
 WHERE语句用于提取满足指定条件的记录，相当于if
 
@@ -172,7 +174,7 @@ SQL使用单引号来环绕文本值（大部分数据系统也接受双引号�
 
 
 
-## 6. SQL AND & OR 运算符
+### 6. SQL AND & OR 运算符
 
 AND & OR运算符用于基于一个以上的条件对记录进行过滤
 
@@ -215,7 +217,7 @@ mysql> SELECT * FROM Websites WHERE alexa>15 AND (country='CN' OR country='USA')
 
 
 
-## 7. SQL ORDER BY 关键字
+### 7. SQL ORDER BY 关键字
 
 ORDER BY关键字用于对结果集按照一个列或者多个列进行排序
 
@@ -280,7 +282,7 @@ mysql> SELECT * FROM Websites ORDER BY alexa,country;
 
 
 
-## 8. SQL INSERT INTO语句
+### 8. SQL INSERT INTO语句
 
 INSERT INTO语句用于向表中插入新纪录
 
@@ -314,5 +316,115 @@ VALUES (value1,value2,value3,...);
 +------+--------------+---------------------------+-------+---------+
 6 rows in set (0.00 sec)
 #因为没有指定ID，所以是NULL
+```
+
+
+
+### 9. SQL UPDATE语句
+
+UPDATE语句用于更新表中已存在的记录
+
+
+
+**SQL UPDATE语法**
+
+```sql
+UPDATE table_name
+SET column1=value1,column2=value2,...
+WHERE condition;
+```
+
+
+
+**示例**
+
+![image-20230522131859352](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230522131859352.png)
+
+```sql
+#把百度的id改为6
+mysql> use mysql_runoob
+Database changed
+mysql> UPDATE Websites SET id=6 WHERE name='百度';
+Query OK, 1 row affected (0.02 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> SELECT * FROM Websites;
++------+--------------+---------------------------+-------+---------+
+| id   | name         | url                       | alexa | country |
++------+--------------+---------------------------+-------+---------+
+|    1 | Google       | https://www.google.cm/    |     1 | USA     |
+|    2 | 淘宝         | https://www.taobao.com/   |    13 | CN      |
+|    3 | 菜鸟教程     | http://www.runoob.com/    |  4689 | CN      |
+|    4 | 微博         | http://weibo.com/         |    20 | CN      |
+|    5 | Facebook     | https://www.facebook.com/ |     3 | USA     |
+|    6 | 百度         | https://www.baidu.com/    |     4 | CN      |
++------+--------------+---------------------------+-------+---------+
+6 rows in set (0.00 sec)
+
+#假设我们要把 "菜鸟教程" 的 alexa 排名更新为 5000，country 改为 USA。我们使用下面的 SQL 语句：
+mysql> UPDATE Websites SET alexa=5000,country='USA' WHERE name='菜鸟教程';
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> SELECT * FROM Websites;
++------+--------------+---------------------------+-------+---------+
+| id   | name         | url                       | alexa | country |
++------+--------------+---------------------------+-------+---------+
+|    1 | Google       | https://www.google.cm/    |     1 | USA     |
+|    2 | 淘宝         | https://www.taobao.com/   |    13 | CN      |
+|    3 | 菜鸟教程     | http://www.runoob.com/    |  5000 | USA     |
+|    4 | 微博         | http://weibo.com/         |    20 | CN      |
+|    5 | Facebook     | https://www.facebook.com/ |     3 | USA     |
+|    6 | 百度         | https://www.baidu.com/    |     4 | CN      |
++------+--------------+---------------------------+-------+---------+
+6 rows in set (0.00 sec)
+
+#在更新记录时要十分小心，如果少了WHERE子句，将会修改表中所有数据
+```
+
+
+
+### 10. SQL DELETE语句
+
+DELETE语句用于删除表中的行
+
+
+
+**SQL DELETE语法**
+
+```sql
+DELETE FROM table_name WHERE condition;
+```
+
+注意WHERE子句，如果省略了，所有记录都会被删掉
+
+
+
+**示例**
+
+![](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230522000515756.png)
+
+```sql
+#假设我们要从 "Websites" 表中删除网站名为 "Facebook" 且国家为 USA 的网站。我们使用下面的 SQL 语句：
+mysql> DELETE FROM Websites WHERE name='Facebook' AND country='USA';
+Query OK, 1 row affected (0.01 sec)
+
+mysql> SELECT * FROM Websites;
++------+--------------+-------------------------+-------+---------+
+| id   | name         | url                     | alexa | country |
++------+--------------+-------------------------+-------+---------+
+|    1 | Google       | https://www.google.cm/  |     1 | USA     |
+|    2 | 淘宝         | https://www.taobao.com/ |    13 | CN      |
+|    3 | 菜鸟教程     | http://www.runoob.com/  |  5000 | USA     |
+|    4 | 微博         | http://weibo.com/       |    20 | CN      |
++------+--------------+-------------------------+-------+---------+
+4 rows in set (0.00 sec)
+
+#在不删除标的情况下，删除表中所有的行，意味着表结构、属性、索引将保持不变
+mysql> DELETE FROM Websites;
+Query OK, 4 rows affected (0.01 sec)
+
+mysql> SELECT * FROM Websites;
+Empty set (0.00 sec)
 ```
 
