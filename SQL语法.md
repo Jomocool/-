@@ -1108,3 +1108,710 @@ mysql> SELECT Websites.id,Websites.name,access_log.count,access_log.date FROM We
 - **LEFT JOIN**：即使右表中没有匹配，也从左表返回所有的行
 - **RIGHT JOIN**：即使左表中没有匹配，也从右表返回所有的行
 - **FULL JOIN**：只要其中一个表中存在匹配，则返回行
+
+
+
+### 8. SQL INNER JOIN 关键字
+
+**SQL INNER JOIN 关键字**
+
+INNER JOIN关键字在表中存在至少一个匹配时返回行
+
+
+
+**SQL INNER JOIN 语法**
+
+```sql
+SELECT column_name(s)
+FROM table1
+INNER JOIN table2
+ON table1.column_name=table2.column_name;
+
+或
+
+SELECT column_name(s)
+FROM table1
+JOIN table2
+ON table1.column_name=table2.column_name;
+```
+
+**参数说明：**
+
+- columns：要显示的列名。
+- table1：表1的名称。
+- table2：表2的名称。
+- column_name：表中用于连接的列名。
+
+**注释：**INNER JOIN 与 JOIN 是相同的。
+
+![SQL INNER JOIN](https://www.runoob.com/wp-content/uploads/2013/09/img_innerjoin.gif)
+
+
+
+**演示数据库**
+
+```sql
+mysql> SELECT * FROM Websites;
++------+---------------+---------------------------+-------+---------+
+| id   | name          | url                       | alexa | country |
++------+---------------+---------------------------+-------+---------+
+|    1 | Google        | https://www.google.cm/    |     1 | USA     |
+|    2 | 淘宝          | https://www.taobao.com/   |    13 | CN      |
+|    3 | 菜鸟教程      | http://www.runoob.com/    |  5000 | USA     |
+|    4 | 微博          | http://weibo.com/         |    20 | CN      |
+|    5 | Facebook      | https://www.facebook.com/ |     3 | USA     |
+|    7 | stackoverflow | http://stackoverflow.com/ |     0 | IND     |
++------+---------------+---------------------------+-------+---------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT * FROM access_log;
++------+---------+-------+------------+
+| aid  | site_id | count | date       |
++------+---------+-------+------------+
+|    1 |       1 |    45 | 2016-05-10 |
+|    2 |       3 |   100 | 2016-05-13 |
+|    3 |       1 |   230 | 2016-05-14 |
+|    4 |       2 |    10 | 2016-05-14 |
+|    5 |       5 |   205 | 2016-05-14 |
+|    6 |       4 |    13 | 2016-05-15 |
+|    7 |       3 |   220 | 2016-05-15 |
+|    8 |       5 |   545 | 2016-05-16 |
+|    9 |       3 |   201 | 2016-05-17 |
++------+---------+-------+------------+
+9 rows in set (0.00 sec)
+```
+
+
+
+**SQL INNER JOIN 实例**
+
+```sql
+#返回所有网站的访问记录
+mysql> SELECT Websites.name,access_log.count,access_log.date FROM Websites INNER JOIN access_log ON Websites.id=access_log.site_id ORDER BY access_log.count;
++--------------+-------+------------+
+| name         | count | date       |
++--------------+-------+------------+
+| 淘宝         |    10 | 2016-05-14 |
+| 微博         |    13 | 2016-05-15 |
+| Google       |    45 | 2016-05-10 |
+| 菜鸟教程     |   100 | 2016-05-13 |
+| 菜鸟教程     |   201 | 2016-05-17 |
+| Facebook     |   205 | 2016-05-14 |
+| 菜鸟教程     |   220 | 2016-05-15 |
+| Google       |   230 | 2016-05-14 |
+| Facebook     |   545 | 2016-05-16 |
++--------------+-------+------------+
+9 rows in set (0.03 sec)
+```
+
+**注释：**INNER JOIN 关键字在表中存在至少一个匹配时返回行（返回选中列组成的行）。如果 "Websites" 表中的行在 "access_log" 中没有匹配，则不会列出这些行。
+
+
+
+### 9. SQL LEFT JOIN 关键字
+
+**SQL LEFT JOIN 关键字**
+
+LEFT JOIN关键字从左表（table1）返回所有的行，即使右表（table2）中没有匹配。如果右表中没有匹配，则结果为NULL
+
+
+
+**SQL LEFT JOIN 语法**
+
+```sql
+SELECT column_name(s)
+FROM table1
+LEFT JOIN table2
+ON table1.column_name=table2.column_name;
+
+或
+
+SELECT column_name(s)
+FROM table1
+LEFT OUTER JOIN table2
+ON table1.column_name=table2.column_name;
+```
+
+**注释：**在某些数据库中，LEFT JOIN 称为 LEFT OUTER JOIN。
+
+![SQL LEFT JOIN](https://www.runoob.com/wp-content/uploads/2013/09/img_leftjoin.gif)
+
+
+
+**演示数据库**
+
+```sql
+mysql> SELECT * FROM Websites;
++------+---------------+---------------------------+-------+---------+
+| id   | name          | url                       | alexa | country |
++------+---------------+---------------------------+-------+---------+
+|    1 | Google        | https://www.google.cm/    |     1 | USA     |
+|    2 | 淘宝          | https://www.taobao.com/   |    13 | CN      |
+|    3 | 菜鸟教程      | http://www.runoob.com/    |  5000 | USA     |
+|    4 | 微博          | http://weibo.com/         |    20 | CN      |
+|    5 | Facebook      | https://www.facebook.com/ |     3 | USA     |
+|    7 | stackoverflow | http://stackoverflow.com/ |     0 | IND     |
++------+---------------+---------------------------+-------+---------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT * FROM access_log;
++------+---------+-------+------------+
+| aid  | site_id | count | date       |
++------+---------+-------+------------+
+|    1 |       1 |    45 | 2016-05-10 |
+|    2 |       3 |   100 | 2016-05-13 |
+|    3 |       1 |   230 | 2016-05-14 |
+|    4 |       2 |    10 | 2016-05-14 |
+|    5 |       5 |   205 | 2016-05-14 |
+|    6 |       4 |    13 | 2016-05-15 |
+|    7 |       3 |   220 | 2016-05-15 |
+|    8 |       5 |   545 | 2016-05-16 |
+|    9 |       3 |   201 | 2016-05-17 |
++------+---------+-------+------------+
+9 rows in set (0.00 sec)
+```
+
+
+
+**SQL LEFT JOIN 实例**
+
+```sql
+#返回所有网站以及它们的访问量（如果有的话）
+#把Websites作为左表，access_log作为右表
+mysql> SELECT Websites.name,access_log.count,access_log.date FROM Websites LEFT JOIN access_log ON Websites.id=access_log.site_id ORDER BY access_log.count DESC;
++---------------+-------+------------+
+| name          | count | date       |
++---------------+-------+------------+
+| Facebook      |   545 | 2016-05-16 |
+| Google        |   230 | 2016-05-14 |
+| 菜鸟教程      |   220 | 2016-05-15 |
+| Facebook      |   205 | 2016-05-14 |
+| 菜鸟教程      |   201 | 2016-05-17 |
+| 菜鸟教程      |   100 | 2016-05-13 |
+| Google        |    45 | 2016-05-10 |
+| 微博          |    13 | 2016-05-15 |
+| 淘宝          |    10 | 2016-05-14 |
+| stackoverflow |  NULL | NULL       |
++---------------+-------+------------+
+10 rows in set (0.00 sec)
+#右表没匹配记录也会显示，只不过数据是NULL
+```
+
+**注释：**LEFT JOIN 关键字从左表（Websites）返回所有的行，即使右表（access_log）中没有匹配。
+
+
+
+### 10. SQL RIGHT JOIN 关键字
+
+**SQL RIGHT JOIN 关键字**
+
+RIGHT JOIN 关键字从右表（table2）返回所有的行，即使左表（table1）中没有匹配。如果左表中没有匹配，则结果为 NULL。
+
+
+
+**SQL RIGHT JOIN 语法**
+
+```sql
+SELECT column_name(s)
+FROM table1
+RIGHT JOIN table2
+ON table1.column_name=table2.column_name;
+
+或
+
+SELECT column_name(s)
+FROM table1
+RIGHT OUTER JOIN table2
+ON table1.column_name=table2.column_name;
+```
+
+**注释：**在某些数据库中，RIGHT JOIN 称为 RIGHT OUTER JOIN。
+
+![SQL RIGHT JOIN](https://www.runoob.com/wp-content/uploads/2013/09/img_rightjoin.gif)
+
+
+
+**演示数据库**
+
+```sql
+mysql> SELECT * FROM Websites;
++------+---------------+---------------------------+-------+---------+
+| id   | name          | url                       | alexa | country |
++------+---------------+---------------------------+-------+---------+
+|    1 | Google        | https://www.google.cm/    |     1 | USA     |
+|    2 | 淘宝          | https://www.taobao.com/   |    13 | CN      |
+|    3 | 菜鸟教程      | http://www.runoob.com/    |  5000 | USA     |
+|    4 | 微博          | http://weibo.com/         |    20 | CN      |
+|    5 | Facebook      | https://www.facebook.com/ |     3 | USA     |
+|    7 | stackoverflow | http://stackoverflow.com/ |     0 | IND     |
++------+---------------+---------------------------+-------+---------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT * FROM access_log;
++------+---------+-------+------------+
+| aid  | site_id | count | date       |
++------+---------+-------+------------+
+|    1 |       1 |    45 | 2016-05-10 |
+|    2 |       3 |   100 | 2016-05-13 |
+|    3 |       1 |   230 | 2016-05-14 |
+|    4 |       2 |    10 | 2016-05-14 |
+|    5 |       5 |   205 | 2016-05-14 |
+|    6 |       4 |    13 | 2016-05-15 |
+|    7 |       3 |   220 | 2016-05-15 |
+|    8 |       5 |   545 | 2016-05-16 |
+|    9 |       3 |   201 | 2016-05-17 |
+|   10 |       6 |   111 | 2016-03-19 |
++------+---------+-------+------------+
+10 rows in set (0.00 sec)
+```
+
+
+
+**SQL RIGHT JOIN 实例**
+
+```sql
+#返回网站的访问记录
+#把Websites作左表，access_log作右表
+mysql> SELECT Websites.name,access_log.count,access_log.date FROM Websites RIGHT JOIN access_log ON Websites.id=access_log.site_id ORDER BY access_log.count DESC;
++--------------+-------+------------+
+| name         | count | date       |
++--------------+-------+------------+
+| Facebook     |   545 | 2016-05-16 |
+| Google       |   230 | 2016-05-14 |
+| 菜鸟教程     |   220 | 2016-05-15 |
+| Facebook     |   205 | 2016-05-14 |
+| 菜鸟教程     |   201 | 2016-05-17 |
+| NULL         |   111 | 2016-03-19 |
+| 菜鸟教程     |   100 | 2016-05-13 |
+| Google       |    45 | 2016-05-10 |
+| 微博         |    13 | 2016-05-15 |
+| 淘宝         |    10 | 2016-05-14 |
++--------------+-------+------------+
+10 rows in set (0.00 sec)
+#左边没有对应的记录也会显示，只不过是NULL
+```
+
+**注释：**RIGHT JOIN 关键字从右表（access_log）返回所有的行，即使左表（Websites）中没有匹配。
+
+
+
+### 11. SQL FULL OUTER JOIN 关键字
+
+**SQL FULL OUTER JOIN 关键字**
+
+FULL OUTER JOIN关键字只要左表（table1）和右表（table2）其中一个表中存在匹配，则返回行
+
+FULL OUTER JOIN关键字结合了LEFT JOIN和RIGHT JOIN的结果
+
+
+
+**SQL FULL OUTER JOIN 语法**
+
+```sql
+SELECT column_name(s)
+FROM table1
+FULL OUTER JOIN table2
+ON table1.column_name=table2.column_name;
+```
+
+![SQL FULL OUTER JOIN](https://www.runoob.com/wp-content/uploads/2013/09/img_fulljoin.gif)
+
+
+
+**演示数据库**
+
+```sql
+mysql> SELECT * FROM Websites;
++------+---------------+---------------------------+-------+---------+
+| id   | name          | url                       | alexa | country |
++------+---------------+---------------------------+-------+---------+
+|    1 | Google        | https://www.google.cm/    |     1 | USA     |
+|    2 | 淘宝          | https://www.taobao.com/   |    13 | CN      |
+|    3 | 菜鸟教程      | http://www.runoob.com/    |  5000 | USA     |
+|    4 | 微博          | http://weibo.com/         |    20 | CN      |
+|    5 | Facebook      | https://www.facebook.com/ |     3 | USA     |
+|    7 | stackoverflow | http://stackoverflow.com/ |     0 | IND     |
++------+---------------+---------------------------+-------+---------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT * FROM access_log;
++------+---------+-------+------------+
+| aid  | site_id | count | date       |
++------+---------+-------+------------+
+|    1 |       1 |    45 | 2016-05-10 |
+|    2 |       3 |   100 | 2016-05-13 |
+|    3 |       1 |   230 | 2016-05-14 |
+|    4 |       2 |    10 | 2016-05-14 |
+|    5 |       5 |   205 | 2016-05-14 |
+|    6 |       4 |    13 | 2016-05-15 |
+|    7 |       3 |   220 | 2016-05-15 |
+|    8 |       5 |   545 | 2016-05-16 |
+|    9 |       3 |   201 | 2016-05-17 |
++------+---------+-------+------------+
+9 rows in set (0.00 sec)
+```
+
+
+
+**SQL FULL OUTER JOIN 实例**
+
+```sql
+#选取所有网站访问记录
+#MySQL中不支持FULL OUTER JOIN
+```
+
+**注释：**FULL OUTER JOIN 关键字返回左表（Websites）和右表（access_log）中所有的行。如果 "Websites" 表中的行在 "access_log" 中没有匹配或者 "access_log" 表中的行在 "Websites" 表中没有匹配，也会列出这些行。
+
+
+
+### 12. SQL UNION 操作符
+
+SQL UNION操作符合并两个或多个SELECT语句的结果
+
+
+
+**SQL UNION 操作符**
+
+UNION内部的每个SELECT语句必须拥有相同数量的列。列也必须拥有相似的数据类型。同时，每个SELECT语句中的列的顺序必须相同
+
+
+
+**SQL UNION 语法**
+
+```sql
+SELECT column_name(s) FROM table1
+UNION
+SELECT column_name(s) FROM table2;
+```
+
+**注释：**UNION 结果集中的列名总是等于 UNION 中第一个 SELECT 语句中的列名。
+
+
+
+**演示数据库**
+
+```sql
+mysql> SELECT * FROM Websites;
++------+---------------+---------------------------+-------+---------+
+| id   | name          | url                       | alexa | country |
++------+---------------+---------------------------+-------+---------+
+|    1 | Google        | https://www.google.cm/    |     1 | USA     |
+|    2 | 淘宝          | https://www.taobao.com/   |    13 | CN      |
+|    3 | 菜鸟教程      | http://www.runoob.com/    |  5000 | USA     |
+|    4 | 微博          | http://weibo.com/         |    20 | CN      |
+|    5 | Facebook      | https://www.facebook.com/ |     3 | USA     |
+|    7 | stackoverflow | http://stackoverflow.com/ |     0 | IND     |
++------+---------------+---------------------------+-------+---------+
+6 rows in set (0.04 sec)
+
+mysql> SELECT * FROM apps;
++------+------------+-------------------------+---------+
+| id   | app_name   | url                     | country |
++------+------------+-------------------------+---------+
+|    1 | QQ APP     | http://im.qq.com/       | CN      |
+|    2 | 微博 APP   | http://weibo.com/       | CN      |
+|    3 | 淘宝 APP   | https://www.taobao.com/ | CN      |
++------+------------+-------------------------+---------+
+3 rows in set (0.00 sec)
+```
+
+
+
+**SQL UNION 实例**
+
+```sql
+#从"Websites"和"apps"表中选取所有不同的country（只有不同的值）
+mysql> SELECT country FROM Websites UNION SELECT country FROM apps ORDER BY country;
++---------+
+| country |
++---------+
+| CN      |
+| IND     |
+| USA     |
++---------+
+3 rows in set (0.00 sec)
+```
+
+**注释：**UNION 不能用于列出两个表中所有的country。如果一些网站和APP来自同一个国家，每个国家只会列出一次。UNION 只会选取不同的值。请使用 UNION ALL 来选取重复的值！
+
+
+
+**SQL UNION ALL 实例**
+
+```sql
+#使用UNION ALL从"Websites"和"apps"表中选取所有的country（也有重复的值）
+mysql> SELECT country FROM Websites UNION ALL SELECT country FROM apps ORDER BY country;
++---------+
+| country |
++---------+
+| CN      |
+| CN      |
+| CN      |
+| CN      |
+| CN      |
+| IND     |
+| USA     |
+| USA     |
+| USA     |
++---------+
+9 rows in set (0.00 sec)
+```
+
+
+
+**带有 WHERE 的 SQL UNION ALL**
+
+```sql
+#使用UNION ALL从"Websites"和"apps"表中选取所有的中国（CN）的数据（也有重复的值）
+mysql> SELECT country,name FROM Websites WHERE country='CN' UNION ALL SELECT country,app_name FROM apps WHERE country='CN';
++---------+------------+
+| country | name       |
++---------+------------+
+| CN      | 淘宝       |
+| CN      | 微博       |
+| CN      | QQ APP     |
+| CN      | 微博 APP   |
+| CN      | 淘宝 APP   |
++---------+------------+
+5 rows in set (0.00 sec)
+```
+
+### 13. SQL SELECT INTO 语句
+
+通过SQL，可以从一个表复制信息到另一个表
+
+SELECT INTO语句从一个表复制数据，然后把数据插入到另一个新表中
+
+
+
+**SQL SELECT INTO 语句**
+
+**注意：**
+
+MySQL 数据库不支持 SELECT ... INTO 语句，但支持INSERT INTO ... SELECT 。
+
+当然你可以使用以下语句来拷贝表结构及数据：
+
+```sql
+CREATE TABLE new_table
+AS
+SELECT * FROM old_table;
+```
+
+
+
+**SQL SELECT INTO 语法**
+
+```sql
+#复制所有的列插入到新表中
+SELECT *
+INTO newtable [IN externaldb]
+FROM table1;
+
+#只复制希望的列插入到新表中
+SELECT column_name(s)
+INTO newtable [IN externaldb]
+FROM table1;
+```
+
+**提示：**新表将会使用 SELECT 语句中定义的列名称和类型进行创建。您可以使用 AS 子句来应用新名称。
+
+
+
+**SQL SELECT INTO 实例**
+
+```sql
+#创建Websites的备份复件
+mysql> CREATE TABLE WebsitesBackup2023 AS SELECT * FROM Websites;
+Query OK, 6 rows affected (0.03 sec)
+Records: 6  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM WebsitesBackup2023;
++------+---------------+---------------------------+-------+---------+
+| id   | name          | url                       | alexa | country |
++------+---------------+---------------------------+-------+---------+
+|    1 | Google        | https://www.google.cm/    |     1 | USA     |
+|    2 | 淘宝          | https://www.taobao.com/   |    13 | CN      |
+|    3 | 菜鸟教程      | http://www.runoob.com/    |  5000 | USA     |
+|    4 | 微博          | http://weibo.com/         |    20 | CN      |
+|    5 | Facebook      | https://www.facebook.com/ |     3 | USA     |
+|    7 | stackoverflow | http://stackoverflow.com/ |     0 | IND     |
++------+---------------+---------------------------+-------+---------+
+6 rows in set (0.00 sec)
+
+#只复制一些列插入到新表中
+mysql> CREATE TABLE WebsitesBackupColumn AS SELECT name,url FROM Websites;
+Query OK, 6 rows affected (0.05 sec)
+Records: 6  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM WebsitesBackupColumn;
++---------------+---------------------------+
+| name          | url                       |
++---------------+---------------------------+
+| Google        | https://www.google.cm/    |
+| 淘宝          | https://www.taobao.com/   |
+| 菜鸟教程      | http://www.runoob.com/    |
+| 微博          | http://weibo.com/         |
+| Facebook      | https://www.facebook.com/ |
+| stackoverflow | http://stackoverflow.com/ |
++---------------+---------------------------+
+6 rows in set (0.00 sec)
+
+#只复制中国的网站插入到新表中
+mysql> CREATE TABLE WebsitesCN AS SELECT * FROM Websites WHERE country='CN';
+Query OK, 2 rows affected (0.05 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM WebsitesCN;
++------+--------+-------------------------+-------+---------+
+| id   | name   | url                     | alexa | country |
++------+--------+-------------------------+-------+---------+
+|    2 | 淘宝   | https://www.taobao.com/ |    13 | CN      |
+|    4 | 微博   | http://weibo.com/       |    20 | CN      |
++------+--------+-------------------------+-------+---------+
+2 rows in set (0.00 sec)
+
+#复制多个表中的数据插入到新表中
+mysql> CREATE TABLE WebsitesMultiTable AS SELECT Websites.name,access_log.count,access_log.date FROM Websites LEFT JOIN access_log ON Websites.id=access_log.site_id;#只要有id匹配的，就把这些数据筛选出来
+Query OK, 10 rows affected (0.03 sec)
+Records: 10  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM WebsitesMultiTable;
++---------------+-------+------------+
+| name          | count | date       |
++---------------+-------+------------+
+| Google        |   230 | 2016-05-14 |
+| Google        |    45 | 2016-05-10 |
+| 淘宝          |    10 | 2016-05-14 |
+| 菜鸟教程      |   201 | 2016-05-17 |
+| 菜鸟教程      |   220 | 2016-05-15 |
+| 菜鸟教程      |   100 | 2016-05-13 |
+| 微博          |    13 | 2016-05-15 |
+| Facebook      |   545 | 2016-05-16 |
+| Facebook      |   205 | 2016-05-14 |
+| stackoverflow |  NULL | NULL       |
++---------------+-------+------------+
+10 rows in set (0.00 sec)
+
+#创建空表，只要添加促使查询没有数据返回的WHERE子句即可
+mysql> CREATE TABLE emptyTable AS SELECT * FROM Websites WHERE 1=0;
+Query OK, 0 rows affected (0.03 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM emptyTable;
+Empty set (0.00 sec)
+```
+
+
+
+### 14. SQL INSERT INTO SELECT 语句
+
+**SQL INSERT INTO SELECT 语句**
+
+INSERT INTO SELECT语句从一个表复制数据，然后把数据插入到一个已存在的表中。目标表中任何已存在的行都不会受影响
+
+
+
+**SQL INSERT INTO SELECT 语法**
+
+```sql
+#我们可以从一个表中复制所有的列插入到另一个已存在的表中
+INSERT INTO table2
+SELECT * FROM table1;
+
+#可以只复制指定的列插入到另一个已存在的表中
+INSERT INTO table2
+(column_name(s)))
+SELECT column_name(s)
+FROM table1;
+```
+
+
+
+**演示数据库**
+
+```sql
+mysql> SELECT * FROM Websites;
++------+---------------+---------------------------+-------+---------+
+| id   | name          | url                       | alexa | country |
++------+---------------+---------------------------+-------+---------+
+|    1 | Google        | https://www.google.cm/    |     1 | USA     |
+|    2 | 淘宝          | https://www.taobao.com/   |    13 | CN      |
+|    3 | 菜鸟教程      | http://www.runoob.com/    |  5000 | USA     |
+|    4 | 微博          | http://weibo.com/         |    20 | CN      |
+|    5 | Facebook      | https://www.facebook.com/ |     3 | USA     |
+|    7 | stackoverflow | http://stackoverflow.com/ |     0 | IND     |
++------+---------------+---------------------------+-------+---------+
+6 rows in set (0.04 sec)
+
+mysql> SELECT * FROM apps;
++------+------------+-------------------------+---------+
+| id   | app_name   | url                     | country |
++------+------------+-------------------------+---------+
+|    1 | QQ APP     | http://im.qq.com/       | CN      |
+|    2 | 微博 APP   | http://weibo.com/       | CN      |
+|    3 | 淘宝 APP   | https://www.taobao.com/ | CN      |
++------+------------+-------------------------+---------+
+3 rows in set (0.00 sec)
+```
+
+
+
+**SQL INSERT INTO SELECT 实例**
+
+```sql
+#复制"apps"中的数据插入到"Websites"中，app_name和name匹配，country和country匹配
+mysql> INSERT INTO Websites(name,country) SELECT app_name,country FROM apps;
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM Websites;
++------+---------------+---------------------------+-------+---------+
+| id   | name          | url                       | alexa | country |
++------+---------------+---------------------------+-------+---------+
+|    1 | Google        | https://www.google.cm/    |     1 | USA     |
+|    2 | 淘宝          | https://www.taobao.com/   |    13 | CN      |
+|    3 | 菜鸟教程      | http://www.runoob.com/    |  5000 | USA     |mysql> SELECT * FROM Websites;
++------+---------------+---------------------------+-------+---------+
+| id   | name          | url                       | alexa | country |
++------+---------------+---------------------------+-------+---------+
+|    1 | Google        | https://www.google.cm/    |     1 | USA     |
+|    2 | 淘宝          | https://www.taobao.com/   |    13 | CN      |
+|    3 | 菜鸟教程      | http://www.runoob.com/    |  5000 | USA     |
+|    4 | 微博          | http://weibo.com/         |    20 | CN      |
+|    5 | Facebook      | https://www.facebook.com/ |     3 | USA     |
+|    7 | stackoverflow | http://stackoverflow.com/ |     0 | IND     |
+| NULL | QQ APP        | NULL                      |  NULL | CN      |
+| NULL | 微博 APP      | NULL                      |  NULL | CN      |
+| NULL | 淘宝 APP      | NULL                      |  NULL | CN      |
+| NULL | QQ APP        | NULL                      |  NULL | CN      |
++------+---------------+---------------------------+-------+---------+
+10 rows in set (0.00 sec)
+|    4 | 微博          | http://weibo.com/         |    20 | CN      |
+|    5 | Facebook      | https://www.facebook.com/ |     3 | USA     |
+|    7 | stackoverflow | http://stackoverflow.com/ |     0 | IND     |
+| NULL | QQ APP        | NULL                      |  NULL | CN      |
+| NULL | 微博 APP      | NULL                      |  NULL | CN      |
+| NULL | 淘宝 APP      | NULL                      |  NULL | CN      |
++------+---------------+---------------------------+-------+---------+
+9 rows in set (0.00 sec)
+
+#只复制id=1的数据到"Websites"中
+mysql> SELECT * FROM Websites;
++------+---------------+---------------------------+-------+---------+
+| id   | name          | url                       | alexa | country |
++------+---------------+---------------------------+-------+---------+
+|    1 | Google        | https://www.google.cm/    |     1 | USA     |
+|    2 | 淘宝          | https://www.taobao.com/   |    13 | CN      |
+|    3 | 菜鸟教程      | http://www.runoob.com/    |  5000 | USA     |
+|    4 | 微博          | http://weibo.com/         |    20 | CN      |
+|    5 | Facebook      | https://www.facebook.com/ |     3 | USA     |
+|    7 | stackoverflow | http://stackoverflow.com/ |     0 | IND     |
+| NULL | QQ APP        | NULL                      |  NULL | CN      |
+| NULL | 微博 APP      | NULL                      |  NULL | CN      |
+| NULL | 淘宝 APP      | NULL                      |  NULL | CN      |
+| NULL | QQ APP        | NULL                      |  NULL | CN      |
++------+---------------+---------------------------+-------+---------+
+10 rows in set (0.00 sec)
+```
+
