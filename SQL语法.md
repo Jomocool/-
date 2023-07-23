@@ -1815,3 +1815,199 @@ mysql> SELECT * FROM Websites;
 10 rows in set (0.00 sec)
 ```
 
+
+
+### 15. SQL CREATE DATABASE 语句
+
+**SQL CREATE DATABASE 语句**
+
+CREATE DATABASE语句用于创建数据库
+
+
+
+**SQL CREATE DATABASE 语法**
+
+```sql
+CREATE DATABASE dbname;
+```
+
+
+
+**SQL CREATE DATABASE 实例**
+
+```sql
+#创建一个名为"my_db"的数据库
+mysql> CREATE DATABASE my_db;
+Query OK, 1 row affected (0.02 sec)
+```
+
+
+
+### 16. SQL CREATE TABLE 语句
+
+**SQL CREATE TABLE 语句**
+
+CREATE TABLE语句用于创建数据库中的表
+
+表由行和列组成，每个表都必须有个表名
+
+
+
+**SQL CREATE TABLE 语法**
+
+```sql
+CREATE TABLE table_name
+(
+column_name1 data_type(size),
+column_name2 data_type(size),
+column_name3 data_type(size),
+....
+);
+```
+
+column_name 参数规定表中列的名称。
+
+data_type 参数规定列的数据类型（例如 varchar、integer、decimal、date 等等）。
+
+size 参数规定表中列的最大长度。
+
+
+
+
+
+**SQL CREATE TABLE 实例**
+
+```sql
+#创建一个名为"Persons"的表，包含5列：PersonID。LastName、FirstName、Address和City
+mysql> CREATE TABLE Persons (PersonID int,LastName varchar(255),FirstName varchar(255),Address varchar(255),City varchar(255));
+Query OK, 0 rows affected (0.02 sec)
+```
+
+**提示：**可使用 INSERT INTO 语句向空表写入数据。
+
+
+
+### 17. SQL 约束（Constraints）
+
+**SQL 约束（Constraints）**
+
+SQL约束用于规定表中的数据规则
+
+如果存在违反约束的数据行为，行为会被约束终止
+
+约束可以在创建表时规定（通过CREATE TABLE语句），或者在表创建之后规定（通过ALTER TABLE语句）
+
+
+
+**SQL CREATE TABLE + CONSTRAINT 语法**
+
+```sql
+CREATE TABLE table_name
+(
+column_name1 data_type(size) constraint_name,
+column_name2 data_type(size) constraint_name,
+column_name3 data_type(size) constraint_name.
+....
+);
+```
+
+在SQL中，有如下约束：
+
+- NOT NULL：指示某列不能存储NULL值
+- UNIQUE：保证某列的每行必须有唯一的值
+- PRIMARY KEY：NOT NULL和UNIQUE的结合。确保某列（或者两个列多个列的结合）有唯一标识，有助于更容易更快速地找到表中的一个特定的记录
+- FOREIGN KEY：保证一个表中的数据匹配另一表中的值的参照完整性
+- CHECK：保证列中的值符合指定的条件
+- DEFAULT：规定没有给列赋值时的默认值
+
+
+
+### 18. SQL NOT NULL 约束
+
+在默认的情况下，表的列接收NULL值
+
+
+
+**SQL NOT NULL 约束**
+
+NOT NULL约束强制列不接受NULL值
+
+NOT NULL约束强制字段始终包含值。这意味着，如果不向字段添加值，就无法插入新纪录或者更新记录
+
+```sql
+#强制'ID'列、'LastName'列以及'FirstName'列不接受NULL值
+CREATE TABLE Person
+(
+ID int NOT NULL,
+LastName varchar(255) NOT NULL,
+FirstName varchar(255) NOT NULL,
+Age int
+);
+```
+
+
+
+**添加 NOT NULL 约束**
+
+```sql
+#在一个已创建的表的'Age'字段中添加NOT NULL约束
+mysql> ALTER TABLE Person MODIFY Age int NOT NULL;
+Query OK, 0 rows affected (0.07 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+```
+
+
+
+**删除 NOT NULL 约束**
+
+```sql
+#在一个已创建的表的'Age'字段中删除NOT NULL约束
+mysql> ALTER TABLE Person MODIFY Age int NULL;
+Query OK, 0 rows affected (0.03 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+```
+
+
+
+### 19. SQL UNIQUE 约束
+
+**SQL UNIQUE 约束**
+
+UNIQUE约束唯一标识数据库表中的每条记录
+
+UNIQUE和PRIMARY KEY约束均为列或列集合提供了唯一性的保证
+
+PRIMARY KEY约束拥有自动定义的UNIQUE约束
+
+注意，每个表可以有多个UNIQUE约束，但是每个表只能有一个PRIMARY约束
+
+
+**CREATE TABLE 时的 SQL UNIQUE 约束**
+
+```sql
+#在"Persons"表创建时在'P_Id'列上创建UNIQUE约束
+CREATE TABLE Persons
+(
+P_Id int NOT NULL,
+LastName varchar(255) NOT NULL,
+UNIQUE(P_Id)
+);
+```
+
+
+
+**ALTER TABLE 时的 SQL UNIQUE 约束**
+
+```sql
+#当表已被创建时，如需在'P_Id'列创建UNIQUE约束
+ALTER TABLE Persons ADD UNIQUE(P_Id);
+```
+
+
+
+**撤销 UNIQUE 约束**
+
+```sql
+#撤销UNIQUE约束
+ALTER TABLE DROP INDEX P_Id;
+```
