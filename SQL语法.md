@@ -1992,6 +1992,14 @@ P_Id int NOT NULL,
 LastName varchar(255) NOT NULL,
 UNIQUE(P_Id)
 );
+
+#命名UNIQUE约束，并定义多个列的UNIQUE约束
+CREATE TABLE Persons
+(
+P_Id int NOT NULL,
+LastName varchar(255) NOT NULL,
+CONSTRAINT uc_PersonID UNIQUE(P_Id,LastName)
+);
 ```
 
 
@@ -2001,6 +2009,10 @@ UNIQUE(P_Id)
 ```sql
 #当表已被创建时，如需在'P_Id'列创建UNIQUE约束
 ALTER TABLE Persons ADD UNIQUE(P_Id);
+
+#当表已被创建，需命名UNIQUE约束，并定义多个列的UNIQUE约束
+ALTER TABLE Persons
+ADD CONSTRAINT uc_PersonID UNIQUE(P_Id,LastName);
 ```
 
 
@@ -2009,5 +2021,311 @@ ALTER TABLE Persons ADD UNIQUE(P_Id);
 
 ```sql
 #撤销UNIQUE约束
-ALTER TABLE DROP INDEX P_Id;
+ALTER TABLE DROP INDEX uc_PersonID;
 ```
+
+
+
+### 20. SQL PRIMARY KEY 约束
+
+**SQL PRIMARY KEY 约束**
+
+PRIMARY KEY约束唯一标识数据库表中的每条记录
+
+主键必须包含唯一的值
+
+主键列不能包含NULL值
+
+每个表都应该有一个主键，并且每个表只能有一个主键
+
+
+
+**CREATE TABLE 时的 SQL PRIMARY KEY 约束**
+
+```sql
+#在"Persons"表创建时再"P_Id"列上创建PRIMARY KEY约束
+CREATE TABLE Persons
+(
+P_Id int NOT NULL,
+....
+PRIMARY KEY(P_Id)
+);
+
+#如需命名PRIMARY KEY约束，并定义多个列的PRIMARY KEY约束
+#添加主键的列必须在首次创建时声明为NOT NULL
+CREATE TABLE Persons
+(
+P_Id int NOT NULL,
+LastName varchar(255) NOT NULL,
+FirstName varchar(255),
+Address varchar(255),
+City varchar(255),
+#命名PRIMARY KEY约束为pk_PersonID，并定义P_Id和LastName两个列的约束
+CONSTRAINT pk_PersonID PRIMARY KEY (P_Id,LastName)
+);
+
+```
+
+**注释：**在上面的实例中，只有一个主键 PRIMARY KEY（pk_PersonID）。然而，pk_PersonID 的值是由两个列（P_Id 和 LastName）组成的。
+
+
+
+**ALTER TABLE 时的 SQL PRIMARY KEY 约束**
+
+```sql
+#当表已被创建时，如需在'P_Id'列创建PRIMARY KEY约束
+ALTER TABLE Persons
+ADD PRIMARY KEY (P_Id)
+
+#如需命名PRIMARY KEY约束，并定义多个列的PRIMARY KEY约束
+ALTER TABLE Persons
+ADD CONSTRAINT pk_PersonID PRIMARY KEY(P_Id,LastName);
+```
+
+**注释：**如果您使用 ALTER TABLE 语句添加主键，必须把主键列声明为不包含 NULL 值（在表首次创建时）。
+
+
+
+
+
+**撤销 PRIMARY KEY 约束**
+
+```sql
+#撤销PRIMARY KEY约束
+#撤销PRIMARY KEY约束时，不论约束条件为一列还是多列，对于MySQL，撤销都是如下
+ALTER TABLE Persons
+DROP PRIMARY KEY;
+```
+
+
+
+### 21. SQL FOREIGN KEY 约束
+
+**SQL FOREIGN KEY 约束**
+
+一个表中的FOREIGN KEY指向另一个表中的UNIQUE KEY（唯一约束的键）
+
+![image-20230724235144110](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230724235144110.png)
+
+
+
+**CREATE TABLE 时的 SQL FOREIGN KEY 约束**
+
+```sql
+#在"Orders"表中创建时在"P_Id"列上创建FOREIGN KEY约束
+CREATE TABLE Orders
+(
+O_Id int NOT NULL,
+OrderNo int NOT NULL,
+P_Id int,
+PRIMARY KEY (O_Id),
+FOREIGN KEY (P_Id) REFERENCES Persons(P_Id)#Orders的P_Id连接到Persons的P_Id
+);
+
+#命名FOREIGN KEY，并定义多个列的FOREIGN KEY约束
+CREATE TABLE Orders
+(
+O_Id int NOT NULL,
+OrderNo int NOT NULL,
+P_Id int,
+PRIMARY KEY(O_Id),
+CONSTRAINT fk_PerOrders FOREIGN KEY(P_Id)
+REFERENCES Persons(P_Id)
+);
+```
+
+
+
+**ALTER TABLE 时的 SQL FOREIGN KEY 约束**
+
+```sql
+#"Orders"表已被创建，在'P_Id'列创建FOREIGN KEY约束
+ALTER TABLE Orders
+ADD FOREIGN KEY(P_Id)
+REFERENCES Persons(P_Id);
+
+#"Orders"表已被创建，命名FOREIGN KEY，并定义多个列的FOREIGN KEY约束
+ALTER TABLE Orders
+ADD CONSTRAINT fk_PerOrders
+FOREIGN KEY(P_Id)
+REFERENCES Persons(P_Id);
+```
+
+
+
+**撤销 FOREIGN KEY 约束**
+
+```sql
+#撤销FOREIGN KEY约束
+ALTER TABLE Orders
+DROP FOREIGN KEY fk_PerOrders;
+```
+
+**总结：**创建外键时，FOREIGN KEY后总是跟着REFERENCES，因为要和另一个表的列关联，那必然需要一个参照
+
+
+
+### 22. SQL CHECK 约束
+
+**SQL CHECK 约束**
+
+CHECK约束用于限制列中的值的范围
+
+如果对单个列定义CHECK约束，那么该列只允许特定的值
+如果对于一个表定义CHECK约束，那么此约束会基于行中其他列的值在特定的列中对值进行限制
+
+
+
+**CREATE TABLE 时的 SQL CHECK 约束**
+
+```sql
+#在"Persons"表创建时在'P_Id'列上创建CHECK约束。CHECK约束规定'P_Id'列必须只包含大于0的整数
+CREATE TABLE Persons
+(
+P_Id int NOT NULL,
+....
+CHECK(P_Id>0)
+);
+
+#命名CHECK约束，并定义多个列的CHECK约束
+CREATE TABLE Persons
+(
+P_Id int NOT NULL,
+City varchar(255),
+....
+CONSTRAINT chk_Person CHECK(P_Id>0 AND City='Sandnes')
+);
+```
+
+
+
+**ALTER TABLE 时的 SQL CHECK 约束**
+
+```sql
+#当表已被创建时，在'P_Id'列创建CHECK约束
+ALTER TABLE Persons
+ADD CHECK(P_Id>0);
+
+#当表已被创建时，命名CHECK约束，并定义多个列的CHECK约束
+ALTER TABLE Persons
+ADD CONSTRAINT chk_Person CHECK(P_id>0 AND City='Sandnes');
+```
+
+
+
+**撤销 CHECK 约束**
+
+```sql
+#撤销CHECK约束
+ALTER TABLE Persons
+DROP CONSTRAINT chk_Person;
+```
+
+
+
+### 23. SQL DEFAULT 约束
+
+**SQL DEFAULT 约束**
+
+DEFAULT约束用于向列中插入默认值
+
+如果没有规定其他的值，那么会将默认值添加到所有的新纪录
+
+
+
+**CREATE TABLE 时的 SQL DEFAULT 约束**
+
+```sql
+#在"Persons"表创建时在'City'列上创建DEFAULT约束
+CREATE TABLE Persons
+(
+    P_Id int NOT NULL,
+    LastName varchar(255) NOT NULL,
+    FirstName varchar(255),
+    Address varchar(255),
+    City varchar(255) DEFAULT('Sandnes')
+);
+
+#通过使用类似GETDATE()这样的函数，DEFAULT约束也可以用于插入系统值
+CREATE TABLE Orders
+(
+    O_Id int NOT NULL,
+    OrderNo int NOT NULL,
+    P_Id int,
+    OrderDate date DEFAULT(GETDATE())
+);
+```
+
+
+
+**ALTER TABLE 时的 SQL DEFAULT 约束**
+
+```sql
+#当表已被创建时，在'City'列创建DEFAULT约束
+ALTER TABLE Persons
+ALTER City SET DEFAULT 'SANDNES';
+```
+
+
+
+**撤销 DEFAULT 约束**
+
+```sql
+#撤销DEFAULT约束
+ALTER TABLE Persons
+ALTER City DROP DEFAULT;
+```
+
+
+
+### 24. SQL CREATE INDEX 语句
+
+CREATE INDEX语句用于在表中创建索引
+在不读取整个表的情况下，索引使数据库应用程序可以更快地查询数据
+
+
+
+**索引**
+
+在表中创建索引，以便更加快速高效地查询数据
+
+用户无法看到索引，它们只能被用来加速搜索/查询
+
+**注释：**更新一个包含索引的表需要比更新一个没有索引的表花费更多的时间，这是由于索引本身也需要更新。因此，理想的做法是仅仅在常常被搜索的列（以及表）上面创建索引。
+
+
+
+**SQL CREATE INDEX 语法**
+
+```sql
+#在表上创建一个简单的索引，允许使用重复的值
+CREATE INDEX index_name
+ON table_name (column_name);
+```
+
+
+
+**SQL CREATE UNIQUE INDEX 语法**
+
+```sql
+#在表上创建一个唯一的索引。不允许使用重复的值：唯一的索引意味着两个行不能拥有相同的索引值
+CREATE UNIQUE INDEX index_name
+ON table_name (column_name);
+```
+
+**注释：**用于创建索引的语法在不同的数据库中不一样。因此，检查您的数据库中创建索引的语法。
+
+
+
+**CREATE INDEX 实例**
+
+```sql
+#在"Persons"表的'LastName'列上创建一个名为'PIndex'的索引
+CREATE INDEX PIndex
+ON Persons (LastNmae);
+
+#多个列
+CREATE INDEX PIndex
+ON Persons (LastName,FirstName);
+```
+
