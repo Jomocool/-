@@ -2329,3 +2329,276 @@ CREATE INDEX PIndex
 ON Persons (LastName,FirstName);
 ```
 
+
+
+### 25. SQL 撤销索引、撤销表以及撤销数据库
+
+通过DROP语句，可以轻松地删除索引、表和数据库
+
+
+
+**DROP INDEX 语句**
+
+DROP INDEX语句用于删除表中的索引
+
+```sql
+ALTER TABLE table_name DROP INDEX index_name;
+```
+
+
+
+**DROP TABLE 语句**
+
+DROP TABLE语句用于删除表
+
+```sql
+DROP TABLE table_name;
+```
+
+
+
+**DROP DATABASE 语句**
+
+DROP DATABASE语句用于删除数据库
+
+```sql
+DROP DATABASE database_name;
+```
+
+
+
+**TRUNCATE TABLE 语句**
+
+删除表内的数据，但不删除表本身
+
+```sql
+TRUNCATE TABLE table_name;
+```
+
+
+
+### 26. SQL ALTER TABLE 语句
+
+**ALTER TABLE 语句**
+
+ALTER TABLE语句用于在已有的表中添加、删除或修改列
+
+
+
+**SQL ALTER TABLE 语法**
+
+```sql
+#在表中添加列
+ALTER TABLE table_name
+ADD column_name datatype;
+
+#删除表中的列
+ALTER TABLE table_name
+DROP COLUMN column_name;
+
+#改变表中的数据类型
+ALTER TABLE table_name
+MODIFY COLUMN column_name datatype;
+```
+
+
+
+### 27. SQL AUTO INCREMENT 字段
+
+Auto-increment会在新记录插入表中时生成一个唯一的数字
+
+
+
+**AUTO INCREMENT 字段**
+
+在每次插入新记录时，自动地创建主键字段的值
+
+
+
+**用于 MySQL 的语法**
+
+```sql
+#把"Persons"表中的'ID'列定义为auto-increment主键字段
+CREATE TABLE Persons
+(
+ID int NOT NULL AUTO_INCREMENT
+....
+PRIMARY KEY(ID)
+);
+#MySQL 使用 AUTO_INCREMENT 关键字来执行 auto-increment 任务。
+#默认地，AUTO_INCREMENT 的开始值是 1，每条新记录递增 1。
+
+#要让 AUTO_INCREMENT 序列以其他的值起始，请使用下面的 SQL 语法：
+ALTER TABLE Persons AUTO_INCREMENT=100;
+
+#要在 "Persons" 表中插入新记录，我们不必为 "ID" 列规定值（会自动添加一个唯一的值）：
+INSERT INTO Persons(FirstName,LastName)
+VALUES ('Lars','Monsen');
+#上面的 SQL 语句会在 "Persons" 表中插入一条新记录。"ID" 列会被赋予一个唯一的值。"FirstName" 列会被设置为 "Lars"，"LastName" 列会被设置为 "Monsen"。
+```
+
+
+
+### 28. SQL 视图（Views）
+
+视图是可视化的表
+
+
+
+**SQL CREATE VIEW 语句**
+
+在SQL中，视图是基于SQL语句的结果集的可视化的表
+
+视图包含行和列，就像一个真实的表。视图中的字段就是来自一个或多个数据库中的真实的表中的字段
+
+可以向视图添加SQL函数、WHERE以及JOIN语句，也可以呈现数据，就像这些数据来自于某个单一的表一样
+
+
+
+**SQL CREATE VIEW 语法**
+
+```sql
+CREATE VIEW view_name AS
+SELECT column_name(s)
+FROM table_name
+WHERE condition;
+```
+
+**注释：**视图总是显示最新的数据！每当用户查询视图时，数据库引擎通过使用视图的 SQL 语句重建数据。
+
+
+
+**SQL CREATE VIEW 实例**
+
+![image-20230725173159364](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230725173159364.png)
+
+
+
+**SQL 更新视图**
+
+![image-20230725173219044](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230725173219044.png)
+
+
+
+**SQL 撤销视图**
+
+```sql
+DROP VIEW view_name;
+```
+
+
+
+### 29. SQL Date 函数
+
+**SQL 日期（Dates）**
+
+处理日期时，最难的部分是确保所插入的日期的格式与数据库中日期列的格式相匹配
+
+
+
+**MySQL Date 函数**
+
+| 函数          | 描述                                |
+| :------------ | :---------------------------------- |
+| NOW()         | 返回当前的日期和时间                |
+| CURDATE()     | 返回当前的日期                      |
+| CURTIME()     | 返回当前的事情                      |
+| DATE()        | 提取日期或日期/时间表达式的日期部分 |
+| EXTRACT()     | 返回日期/时间的单独部分             |
+| DATE_ADD()    | 向日期添加指定的时间间隔            |
+| DATE_SUB()    | 从日期减去指定的时间间隔            |
+| DATEDIFF()    | 返回两个日期之间的天数              |
+| DATE_FORMAT() | 用不同的格式显示日期/时间           |
+
+
+
+**SQL Date 数据类型**
+
+MySQL使用下列数据类型在数据库中存储日期或日期/时间值
+
+- DATE格式：YYYY-MM-DD
+- DATETIME格式：YYYY-MM-DD HH:MM:SS
+- TIMESTAMP格式：YYYY-MM-DD HH:MM:SS
+- YEAR格式：YYYY或YY
+
+**注释：**当您在数据库中创建一个新表时，需要为列选择数据类型！
+
+
+
+**SQL 日期处理**
+
+![image-20230725174057924](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230725174057924.png)
+
+
+
+### 30. SQL NULL 值
+
+NULL值代表遗漏的未知数据
+
+默认地，表的列可以存放NULL值
+
+
+
+**SQL NULL 值**
+
+如果表中的某个列是可选的，可以在不向该列添加值的情况下插入新记录或更新已有的记录。意味着该字段将以NULL值保存
+
+NULL值的处理方式与其他值不同
+
+NULL用作未知的或不适用的值的占位符
+
+**注释：**无法比较 NULL 和 0；它们是不等价的。
+
+
+
+**SQL 的 NULL 值处理**
+
+![image-20230725174409434](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230725174409434.png)
+
+
+
+**SQL IS NULL**
+
+```sql
+#选取在'Address'列中带有NULL值的记录
+SELECT LastName,FirstName,Address FROM Persons
+WHERE Address IS NULL;
+```
+
+**提示：**请始终使用 IS NULL 来查找 NULL 值。
+
+
+
+**SQL IS NOT NULL**
+
+```sql
+#选取在'Address'列中不带有NULL值的记录
+SELECT LastName,FirstName,Address FROM Persons
+WHERE Address IS NOT NULL;
+```
+
+
+
+### 31. SQL NULL 函数
+
+**SQL ISNULL()、NVL()、IFNULL() 和 COALESCE() 函数**
+
+![image-20230725175025984](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230725175025984.png)
+
+
+
+### 32. SQL 通用数据类型
+
+数据类型定义列中存放的值的种类
+
+
+
+**SQL 通用数据类型**
+
+数据库表中的每个列都要求有名称和数据类型
+
+SQL开发人员必须在创建SQL表时决定表中的每个列要存储的数据的类型。数据类型是一个标签，是便于SQL了解每个期望存储什么类型的数据的指南，也标识了SQL如何与存储的数据进行交互
+
+![image-20230725175342723](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230725175342723.png)
+
+**注释：**在不同的数据库中，同一种数据类型可能有不同的名称。即使名称相同，尺寸和其他细节也可能不同！ **请总是检查文档！**
