@@ -2602,3 +2602,398 @@ SQL开发人员必须在创建SQL表时决定表中的每个列要存储的数�
 ![image-20230725175342723](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230725175342723.png)
 
 **注释：**在不同的数据库中，同一种数据类型可能有不同的名称。即使名称相同，尺寸和其他细节也可能不同！ **请总是检查文档！**
+
+
+
+## 三、SQL函数
+
+### 1. SQL 函数
+
+SQL 拥有很多可用于计数和计算的内建函数。
+
+
+
+**SQL Aggregate 函数**
+
+SQL Aggregate函数计算从列中取得的值，返回一个单一的值
+
+有用的Aggregate函数：
+
+- AVG()：返回平均数
+- COUNT()：返回行数
+- FIRST()：返回第一个记录的值
+- LAST()：返回最后一个记录的值
+- MAX()：返回最大值
+- MIN()：返回最小值
+- SUM()：返回总和
+
+
+
+**SQL Scalar 函数**
+
+SQL Scalar函数基于输入值，返回一个单一的值
+
+有用的Scalar函数：
+
+- UCASE()：将某个字段转换为大写
+- LCASE()：将某个字段转换为小写
+- MID()：从某个文本字段中提取字符，MySQL中使用
+- SubString(字段,1,end)：从某个文本字段中提取字符
+- LEN()：返回某个文本字段的长度
+- ROUND()：对某个数值字段进行指定小数位数的四舍五入
+- NOW()：返回当前的系统日期和时间
+- FORMAT()：格式化某个字段的显示方式
+
+
+
+### 2. SQL AVG() 函数
+
+**AVG() 函数**
+
+AVG()函数返回数值列的平均值
+
+
+
+**SQL AVG() 语法**
+
+```sql
+SELECT AVG(column_name) FROM table_name;
+```
+
+
+
+### 3. SQL COUNT() 函数
+
+COUNT()函数返回匹配指定条件的行数
+
+
+
+**SQL COUNT(column_name) 语法**
+
+```sql
+SELECT COUNT(column_name) FROM table_name;
+```
+
+
+
+**SQL COUNT(*) 语法**
+
+COUNT(*)函数返回表中的记录数
+
+```sql
+SELECT COUNT(*) FROM table_name;
+```
+
+
+
+**SQL COUNT(DISTINCT column_name) 语法**
+
+COUNT(DISTINCT column_name)返回指定列的不同值的数目
+
+```sql
+SELECT COUNT(DISTINCt column_name) FROM table_name;
+```
+
+**注释：**COUNT(DISTINCT) 适用于 ORACLE 和 Microsoft SQL Server，但是无法用于 Microsoft Access。
+
+
+
+### 4. SQL FIRST() 函数
+
+**FIRST() 函数**
+
+FIRST()函数返回指定的列中第一个记录的值
+
+
+
+**SQL FIRST() 语法**
+
+```sql
+SELECT FIRST(column_name) FROM table_name;
+```
+
+**注释：**只有 MS Access 支持 FIRST() 函数。
+
+
+
+**MySQL中的SQL FIRST()工作区**
+
+```sql
+SELECT column_name FROM table_name
+ORDER BY column_name ASC
+LIMIT 1;
+```
+
+
+
+### 5. SQL LAST() 函数
+
+**LAST() 函数**
+
+LAST()函数返回指定的列中最后一个记录的值
+
+
+
+**SQL LAST() 语法**
+
+```sql
+SELECT LAST(column_name) FROM table_name;
+```
+
+
+
+**MySQL中的SQL LAST()工作区**
+
+```sql
+SELECT column_name FROM table_name
+ORDER BY column_name DESC
+LIMIT 1;
+```
+
+
+
+### 6. SQL MAX() 函数
+
+**MAX() 函数**
+
+MAX()函数返回指定列的最大值
+
+
+
+**SQL MAX() 语法**
+
+```sql
+SELECT MAX(column_name) FROM table_name;
+```
+
+
+
+### 7. SQL MIN() Function
+
+**MIN() 函数**
+
+MIN()函数返回指定列的最小值
+
+
+
+**SQL MIN() 语法**
+
+```sql
+SELECT MIN(column_name) FROM table_name;
+```
+
+
+
+### 8. SQL SUM() 函数
+
+**SUM() 函数**
+
+sum()函数返回数值列的总数
+
+
+
+**SQL SUM() 语法**
+
+```sql
+SELECT SUM(column_name) FROm table_name;
+```
+
+
+
+### 9. SQL GROUP BY 语句
+
+GROUP BY语句可结合一些聚合函数来使用
+
+
+
+**GROUP BY 语句**
+
+GROUP BY语句用于结合聚合函数，根据一个或多个列对结果集进行分组
+
+
+
+**SQL GROUP BY 语法**
+
+```sql
+SELECT column_name aggregate_function(column_name)
+FROM table_name
+WHERE column_name operator value
+GROUP BY column_name;
+```
+
+
+
+### 10. SQL HAVING 子句
+
+**HAVING 子句**
+
+在SQL中增加HAVING子句的原因是，WHERE关键字无法与聚合函数一起使用
+
+HAVING子句可以筛选分组后的各组数据
+
+
+
+**SQL HAVING 语法**
+
+![image-20230726162044333](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230726162044333.png)
+
+```sql
+SELECT column_name,aggregate_function(column_name)
+FROM table_name
+WHERE column_name operator value
+GROUP BY column_name
+HAVING aggregate_function(column_name) operator value;
+```
+
+
+
+### 11. SQL EXISTS 运算符
+
+**EXISTS 运算符**
+
+EXISTS运算符用于判断查询子句是否有记录，如果有一条或多条记录存在返回TRUE，否则返回False
+
+
+
+**SQL EXISTS 语法**
+
+```sql
+SELECT column_name(s)
+FROM table_name
+WHERE EXISTS
+(SELECT column_name FROM table_name WHERE condition);
+
+#EXISTS可以和NOT搭配使用，查找出不符合查询语句的记录
+SELECT column_name(s)
+FROM table_name
+WHERE NOT EXISTS
+(SELECT column_name FROM table_name WHERE condition);
+```
+
+
+
+### 12. SQL UCASE() 函数
+
+**UCASE() 函数**
+
+UCASE()函数把字段的值转换为大写
+
+
+
+**SQL UCASE() 语法**
+
+```sql
+SELECT UCASE(column_name) FROM table_name;
+```
+
+
+
+### 13. SQL LCASE() 函数
+
+**LCASE() 函数**
+
+LCASE()函数把字段的值转换位小写
+
+
+
+**SQL LCASE() 语法**
+
+```sql
+SELECT LCASE(column_name) FROm table_name;
+```
+
+
+
+### 14. SQL MID() 函数
+
+**MID() 函数**
+
+MID()函数用于从文本字段中提取字符
+
+
+
+**SQL MID() 语法**
+
+```sql
+SELECT MID(column_name,start,length) FROM table_name;
+```
+
+![image-20230726163111070](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230726163111070.png)
+
+
+
+### 15. SQL LEN() 函数
+
+**LEN() 函数**
+
+LEN()函数返回文本字段中值的长度
+
+
+
+**SQL LEN() 语法**
+
+```sql
+SELECT LEN(column_name) FROM table_name;
+```
+
+MySQL 中函数为 LENGTH():
+
+```sql
+SELECT LENGTH(column_name) FROM table_name;
+```
+
+
+
+### 16. SQL ROUND() 函数
+
+**ROUND() 函数**
+
+ROUND()函数用于把数值字段四舍五入为指定的小数位数
+
+
+
+**SQL ROUND() 语法**
+
+```sql
+SELECT ROUND(column_name,decimals) FROM TABLE_NAME;
+```
+
+![image-20230726163628228](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230726163628228.png)
+
+![image-20230726163653322](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230726163653322.png)
+
+
+
+### 17. SQL NOW() 函数
+
+**NOW() 函数**
+
+NOW()函数返回当前系统的日期和时间
+
+
+
+**SQL NOW() 语法**
+
+```sql
+SELECT column_name1,column_name2,...,NOW() FROM table_name;
+```
+
+
+
+### 18. SQL FORMAT() 函数
+
+**FORMAT() 函数**
+
+FORMAT()函数用于对字段的显示进行格式化
+
+
+
+**SQL FORMAT() 语法**
+
+```sql
+SELECT FORMAT(column_name,format) FROM table_name;
+```
+
+![image-20230726163931077](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230726163931077.png)
+
+![image-20230726164013655](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230726164013655.png)
