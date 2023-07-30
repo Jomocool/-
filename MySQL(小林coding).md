@@ -309,3 +309,259 @@ ERROR 1146 (42S02): Table 'mysql.test' doesn't exist
    - 优化阶段：基于查询成本考虑，选择查询成本最小的执行计划
    - 执行阶段：根据执行计划执行SQL查询语句，从存储引擎读取记录，返回给客户端
 
+
+
+### 1.2 MySQL一行记录是怎么存储的？
+
+#### 1.2.1 MySQL的数据存放在哪个文件？
+
+MySQL的数据都是保存在磁盘的，具体保存在哪个文件呢？
+
+
+
+MySQL存储的行为是由存储引擎实现的，MySQL支持多种存储引擎，不同的存储引擎保存的文件自然也不同
+
+InnoDB是常用的存储引擎，也是MySQL默认的存储引擎。
+
+
+
+MySQL数据库的文件存放在哪个目录？
+
+```mysql
+mysql> SHOW VARIABLES LIKE 'datadir';
++---------------+-----------------+
+| Variable_name | Value           |
++---------------+-----------------+
+| datadir       | /var/lib/mysql/ |
++---------------+-----------------+
+1 row in set (0.00 sec)
+```
+
+每创建一个database都会在/var/lib/mysql/目录里面创建一个以database为名的目录，然后保存表结构和表数据的文件都会存放在这个目录里
+
+![image-20230730110809188](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230730110809188.png)
+
+
+
+**表空间文件的结构是怎么样的？**
+
+`表空间由段（segment）、区（extent）、页（page）、行（row）组成`，InnoDB存储引擎的逻辑存储结构大致如下：
+
+![image-20230730111034703](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230730111034703.png)
+
+表空间里有多个段，每个段里面又有多个区，每个区里面又有多个页，每个页里面就是一行一行的数据了
+
+
+
+1. 行（row）
+
+   数据库表中的记录都是按行进行存放的，每行记录根据不同的行格式，有不同的存储结构
+
+2. 页（page）
+
+   记录是按照行来存储的，但是数据库的读取不以行为单位，否则一次读取（即一次I/O操作）只能处理一行数据，效率太低
+
+   因此，InnoDB的数据是按页为单位来读写的，即当需要读一条记录的时候，并不是将这个行记录从磁盘读出来，而是以页为单位，将该行所在页整体读入内存
+
+   默认每个页的大小为16KB，即最多能保证16KB的连续存储空间
+
+   页是InnoDB存储引擎磁盘管理的最小单元，意味着数据库每次读写都是以16KB为单位的，一次最少从磁盘中读取16KB的内容到内存中，一次最好把内存中的16KB内容刷新到磁盘中
+
+   页的类型有很多，常见的有数据页、undo日志页、溢出页等等。数据表中的行记录是用数据页来管理的
+
+   总之记住表中的记录存储在数据页里面即可
+
+3. 区（extent）
+
+   InnoDB存储引擎是用B+树来组织数据的
+
+   B+树中每一层都是通过双向链表连接起来的，如果是以页为单位来分配存储空间，那么链表中相邻的两个页之间的物理位置并不是连续的，可能离得非常远，那么磁盘查询时就会有大量的随机I/O，随机I/O是非常慢的
+
+   解决方法是让链表中相邻的页的物理位置也相邻，这样就可以顺序I/O了，在范围查询（扫描叶子结点）的时候性能就会很高
+
+   具体解决步骤：
+
+   `在表中数据量大的时候，为某个索引分配空间的时候就不再按照页为单位分配了，而是按照区为单位分配（刚好对内存的需求量也大，干脆就直接分配一块大空间内存就好了，这样页与页之间物理位置恰好也是连续的）。每个区的大小为1MB，对于16KB的页来说，连续的64个页会被划为一个区，这样就使得链表中相邻的页的物理位置也相邻，就能使用顺序I/O了`
+
+4. 段（segment）
+
+   表空间是由各个段组成的，段是由多个区组成的，段一般分为数据段、索引段和回滚段等
+
+   - 索引段：存放B+树的非叶子节点的区的集合
+   - 数据段：存放B+树的叶子结点的区的结合
+   - 回滚段：存放的是回滚数据的区的集合
+
+
+
+#### 1.2.2 InnoDB行格式有哪些？
+
+行格式（row_format），就是一条记录的存储结构
+
+InnoDB提供了4种行格式，分别是Redundant、Compact、Dynamic和Compressed行格式
+
+![image-20230730112757095](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230730112757095.png)
+
+
+
+#### 1.2.3 COMPACT行格式长什么样？
+
+![image-20230730112842699](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230730112842699.png)
+
+
+
+**记录的额外信息**
+
+记录的额外信息包含3个部分：变长字段长度列表、NULL值列表、记录头信息
+
+- `变长字段长度列表`
+
+  varchar(n)和char(n)的区别是char是定长的，而varchar是变长的，变长字段实际存储的数据的长度（大小）不固定的
+
+  所以，在存储数据的时候，也要把数据占用的大小存起来，存到`变长字段长度列表`里面，读取数据的时候根据这个`变长字段长度列表`去读取对应长度的数据，其他TEXT、BLOB等变长字段也是这么实现的
+
+  ![image-20230730113245323](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230730113245323.png)
+
+  ![image-20230730113541260](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230730113541260.png)
+
+  ![image-20230730113601779](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230730113601779.png)
+
+  > 为什么`变长字段长度列表`的信息要按照逆序存放？
+
+  主要是因为`记录头信息`中指向下一个记录的指针，指向的是下一条记录的`记录头信息`和`真实数据`之间的位置，这样的好处就是向左读就是`记录头信息`，向右读就是`真实数据`，比较方便
+
+  `变长字段长度列表`中的信息之所以要逆序存放，是因为这样可以`使得位置靠前的记录的真实数据和数据对应的字段长度信息可以同时在一个CPU Cache Line中（二者相距越近，就越有可能分配到同一个CPU Cache Line中），可以提高CPU Cache的命中率`
+
+  同理，NULL值列表也需要逆序存放
+
+  > 每个数据库表的行格式都有`变长字段长度列表`吗？
+
+  变长字段长度列表不是必需的
+
+  `当数据表没有变长字段的时候，比如全部都是int类型的字段，这时候表里的行格式就不会有变长字段长度列表了`，因为没有必要，比如去掉以节省空间
+
+  所以`变长字段长度列表`只出现在数据库表有变长字段的时候
+
+- `NULL值列表`
+
+  表中的某些列可能会存储NULL值，如果把这些NULL值都放到记录的真实数据中会比较浪费空间，所以Compact行格式就把这些值为NULL的列存储到NULL值列表中
+
+  如果存在允许NULL值的列，则每一个列对应一个二进制位bit，二进制位按照列的顺序逆序排列
+
+  - 二进制位的值为1时，代表该列的值为NULL
+  - 二进制位的值为0时，代表该列的值不为NULL
+
+  另外，NULL值列表必须用整数个字节的位表示（一字节8位），如果使用的二进制位个数不足整数个字节，则在字节的高位补0
+
+  ![image-20230730114752833](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230730114752833.png)
+
+  先看第一条记录，不存在值为NULL的列
+
+  ![img](https://cdn.xiaolincoding.com/gh/xiaolincoder/mysql/row_format/null%E5%80%BC%E5%88%97%E8%A1%A81.png)
+
+  但是InnoDB是用整数字节的二进制位来表示NULL值列表的，现在不足8为，所以要在高位补0
+
+  ![img](https://cdn.xiaolincoding.com/gh/xiaolincoder/mysql/row_format/null%E5%80%BC%E5%88%97%E8%A1%A82.png)
+
+  所以，对于第一条数据，NULL值列表用十六进制表示是0x00
+
+  接下来看第二条记录，用十六进制表示是0x04
+
+  ![img](https://cdn.xiaolincoding.com/gh/xiaolincoder/mysql/row_format/null%E5%80%BC%E5%88%97%E8%A1%A83.png)
+
+  最后是第三条记录，用十六进制表示是0x06
+
+  ![img](https://cdn.xiaolincoding.com/gh/xiaolincoder/mysql/row_format/null%E5%80%BC%E5%88%97%E8%A1%A84.png)
+
+  把三条记录的NULL值列表填充完毕后，它们的行格式如下：
+
+  ![img](https://cdn.xiaolincoding.com/gh/xiaolincoder/mysql/row_format/null%E5%80%BC%E5%88%97%E8%A1%A85.png)
+
+  > 每个数据库表的行格式都有`NULL值列表`吗？
+
+  NULL值列表也不是必需的
+
+  `当数据表的字段都定义成NOT NULL的时候，这时候表里的行格式就不会有NULL值列表了`
+
+  所以在设计数据库表的时候，通常都是将字段设置为NOT NULL，这样至少可以节省1字节的空间（NULL值列表至少占用1字节空间）
+
+  > `NULL值列表`是固定1字节空间吗？如果这样的话，一条记录有9个字段值都是NULL，这时候怎么表示？
+
+  `NULL值列表`不是固定1字节的
+
+  当一条记录有9个字段值都是NULL，那么就会创建2字节的空间的`NULL值列表`，高位补0
+
+- `记录头信息`
+
+  ![image-20230730115626521](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230730115626521.png)
+
+
+
+**记录的真实数据**
+
+记录真实数据除了我们定义的字段，还有三个隐藏字段，分别为：row_id、trx_id、roll_pointer
+
+![img](https://cdn.xiaolincoding.com/gh/xiaolincoder/mysql/row_format/%E8%AE%B0%E5%BD%95%E7%9A%84%E7%9C%9F%E5%AE%9E%E6%95%B0%E6%8D%AE.png)
+
+- `row_id`
+
+  如果建表的时候指定了主键或者唯一约束，那么就没有row_id隐藏字段了。如果既没有指定主键，又没有唯一约束，那么InnoDB就会为记录添加row_id隐藏字段。row_id不是必需的，占用6个字节
+
+- `trx_id`
+
+  事物id，表示这个数据是由哪个事物生成的。trx_id是必需的，占用6个字节
+
+- `roll_pointer`
+
+  这条记录是上个版本的指针。roll_pointer是必须的，占用7个字节
+
+
+
+#### 1.2.4 varchar(n)中n最大值为多少？
+
+`MySQL 规定除了 TEXT、BLOBs 这种大对象类型之外，其他所有的列（不包括隐藏列和记录头信息）占用的字节长度加起来不能超过 65535 个字节`
+
+注意是一行的总长度不超过65535字节，而不是一列
+
+
+
+varchar(n)字段类型的n代表的是最多存储的字符数量，并不是字节大小
+
+要算varchar(n)最大能允许存储的字节数，还要看数据库表的字符集，因为字符集代表着1个字符要占用多少字节。比如ASCII字符集，1个字符占用1字节，那么varchar(100)意味着最大能允许存储100字节的数据
+
+
+
+**单字段的情况**
+
+![image-20230730121707861](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230730121707861.png)
+
+![image-20230730121834584](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230730121834584.png)
+
+![image-20230730122254423](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230730122254423.png)
+
+255=15*16+15，1个十六进制数占用1字节，能够表示0~255，所以对于占用0~255字节的变长字段，只需1个占用1字节的十六进制数即可，所以变长字段长度列表占用字节数是1
+
+![image-20230730122603319](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230730122603319.png)
+
+
+
+**多字段的情况**
+
+`如果有多个字段的话，需要保证所有字段的长度+变长字段字节数列表所占用的字节数+NULL值列表所占用的字节数<=65535`
+
+![img](https://cdn.xiaolincoding.com/gh/xiaolincoder/mysql/row_format/%E5%A4%9A%E5%AD%97%E6%AE%B5%E7%9A%84%E6%83%85%E5%86%B5.png)
+
+
+
+#### 1.2.5 行溢出后，MySQL是怎么处理的？
+
+![image-20230730122933026](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230730122933026.png)
+
+![image-20230730122956946](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230730122956946.png)
+
+
+
+#### 1.2.6 总结
+
+![image-20230730123128125](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230730123128125.png)
+
+![image-20230730123145319](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230730123145319.png)
