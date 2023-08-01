@@ -565,3 +565,235 @@ varchar(n)字段类型的n代表的是最多存储的字符数量，并不是字
 ![image-20230730123128125](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230730123128125.png)
 
 ![image-20230730123145319](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230730123145319.png)
+
+
+
+## 二、索引篇
+
+### 2.1 索引篇常见面试题
+
+#### 2.1.1 什么是索引？
+
+`索引`好比书的目录，方便我们快速查找书中的内容，索引索引是以空间换时间的设计思想
+
+
+
+在数据库中，`索引就是帮助存储引擎快速获取数据的一种数据结构，形象地说就是索引是数据的目录`
+
+
+
+存储引擎：如何为存储数据、如何为存储的数据建立索引和如何更新、查询数据等技术的实现方法。
+下图是MySQL的结构图，索引和数据就是位于存储引擎中：
+
+![img](https://cdn.xiaolincoding.com//mysql/other/1623727651911_20170928110355446.png)
+
+
+
+#### 2.1.2 索引的分类
+
+可以按照四个来分类索引：
+
+- 按 数据结构 分类：`B+tree索引`、`Hash索引`、`Full-text索引`
+- 按 物理存储 分类：`聚簇索引（主键索引）`、`二级索引（辅助索引）`
+- 按 字段特性 分类：`主键索引`、`唯一索引`、`普通索引`、`前缀索引`
+- 按 字段个数 分类：`单列索引`、`联合索引`
+
+
+
+**按数据结构分类**
+
+从数据结构的角度来看，MySQL常见索引有`B+tree索引`、`Hash索引`、`Full-text索引`
+
+
+
+各搜索引擎分别支持的索引类型：
+
+![img](https://cdn.xiaolincoding.com/gh/xiaolincoder/mysql/%E7%B4%A2%E5%BC%95/%E7%B4%A2%E5%BC%95%E5%88%86%E7%B1%BB.drawio.png)
+
+![image-20230801165137132](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801165137132.png)
+
+![image-20230801165203810](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801165203810.png)
+
+![image-20230801165609979](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801165609979.png)
+
+![image-20230801165705981](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801165705981.png)
+
+![image-20230801165758989](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801165758989.png)
+
+![image-20230801165844526](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801165844526.png)
+
+主键索引的B+树的叶子节点才有各数据信息，当通过查询语句只能知道二级索引是多少时，那只能通过二级索引的B+树找到其对应的主键索引，然后返回给主键索引的B+树，这样就能查询到各信息了，也就是说需要查询两个B+树
+
+
+
+**为什么MySQL InnoDB选择B+tree作为索引的数据结构？**
+
+![image-20230801170845367](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801170845367.png)
+
+
+
+**按物理存储分类**
+
+从物理存储的角度来看，索引分为`聚簇索引（主键索引）`、`二级索引（辅助索引）`
+
+二者的区别：
+
+- 主键索引的B+Tree的叶子结点存放的是实际数据，所有完整的用户记录都存放在主键索引的B+Tree的叶子节点里
+- 二级索引的B+Tree的叶子节点存放的是主键值，而不是实际数据
+
+所以，在查询时使用了二级索引，如果查询的数据能在二级索引里查询的到，就不需要回表，这个过程就是覆盖索引
+
+如果查询不到，就会先检索二级索引，找到对应的叶子节点，获取到主键值后，然后再检索主键索引，就能查询到数据了，这个过程就是回表
+
+
+
+**按字段特性分类**
+
+从字段特性的角度来看，索引分为`主键索引`、`唯一索引`、`普通索引`、`前缀索引`。
+
+- 主键索引
+
+  ![image-20230801171319089](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801171319089.png)
+
+- 唯一索引
+
+  ![image-20230801171517598](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801171517598.png)
+
+- 普通索引
+
+  ![image-20230801171537775](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801171537775.png)
+
+- 前缀索引
+
+  ![image-20230801171629084](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801171629084.png)
+
+
+
+**按字段个数分类**
+
+从字段个数的角度来看，索引分为`单列索引`、`联合索引（复合索引）`
+
+二者的区别：
+
+- 单列索引：建立在单列的索引称为单列索引，比如主键索引
+- 建立在多列上的索引称为联合索引
+
+
+
+![image-20230801172058390](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801172058390.png)
+
+![image-20230801172155084](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801172155084.png)
+
+![image-20230801172233092](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801172233092.png)
+
+![image-20230801172453538](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801172453538.png)
+
+![image-20230801172542450](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801172542450.png)
+
+a>1的记录里，b的值是无序的，所以b无法用到联合索引
+
+![image-20230801172656919](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801172656919.png)
+
+![image-20230801172901801](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801172901801.png)
+
+a>=1是(a>1||a==1)，在a>1的记录里，b是无序的，但在a==1的记录里，b是有序的，所以b可以用到联合索引里
+
+![image-20230801173054748](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801173054748.png)
+
+![image-20230801173731782](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801173731782.png)
+
+![image-20230801173832276](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801173832276.png)
+
+![image-20230801173936047](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801173936047.png)
+
+虽然对于所有满足name='j%'的记录，age是无序的，但在name=j的记录中，age是有序的，所以age可以用到联合索引中
+
+![image-20230801173958846](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801173958846.png)
+
+![image-20230801174129142](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801174129142.png)
+
+综上所述，对于联合索引(a,b)，如果对a判断是带有等号性质的条件，则b也可以用到联合索引
+
+
+
+![image-20230801175235877](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801175235877.png)
+
+虽然b没有用到联合索引，但是可以通过索引下推，过滤到b!=2的记录，再返回给Server，减少回表次数
+
+
+
+- 联合索引(a,b)：如果b能用到联合索引，那么在二级索引B+Tree时就只获取满足条件的a、b的记录
+- 索引下推：如果b没能用到联合索引，在从二级索引B+Tree获取记录后，先过滤到不满足条件的b的记录，再返回，减少回表次数
+
+所以，联合索引是发生在二级索引B+Tree返回记录前，索引下推是发生在二级索引B+Tree返回记录后
+
+
+
+![image-20230801175915890](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801175915890.png)
+
+
+
+![image-20230801180004312](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801180004312.png)
+
+
+
+#### 2.1.3 什么时候需要/不需要创建索引？
+
+![image-20230801180145349](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801180145349.png)
+
+![image-20230801180237898](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801180237898.png)
+
+适用索引：索引区分度大、使用频率高、需排序
+
+不适用索引：索引区分度小、使用频率低、数据量少、经常更新（维护成本高，影响数据库性能）
+
+
+
+#### 2.1.4 有什么优化索引的方法？
+
+常见的优化索引的方法：
+
+- 前缀索引优化
+- 覆盖索引优化
+- 主键索引最好是自增的
+- 防止索引失效
+
+
+
+![image-20230801180605087](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801180605087.png)
+
+
+
+![image-20230801180650418](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801180650418.png)
+
+
+
+![image-20230801180732163](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801180732163.png)
+
+![image-20230801180900879](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801180900879.png)
+
+![image-20230801180912292](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801180912292.png)
+
+![image-20230801180948296](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801180948296.png)
+
+
+
+![image-20230801181016965](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801181016965.png)
+
+
+
+![image-20230801181039750](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801181039750.png)
+
+![image-20230801181118645](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801181118645.png)
+
+![image-20230801181241571](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801181241571.png)
+
+![image-20230801181330665](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801181330665.png)
+
+![image-20230801181430822](https://md-jomo.oss-cn-guangzhou.aliyuncs.com/IMG/image-20230801181430822.png)
+
+
+
+#### 2.1.5 总结
+
+![img](https://cdn.xiaolincoding.com/gh/xiaolincoder/mysql/%E7%B4%A2%E5%BC%95/%E7%B4%A2%E5%BC%95%E6%80%BB%E7%BB%93.drawio.png)
