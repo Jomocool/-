@@ -6,14 +6,16 @@
 
 ```mysql
 #题目：现在运营想要查看用户信息表中所有的数据，请你取出相应结果
-select * from user_profile;
+select *
+from user_profile;
 ```
 
 #### SQL2 查询多列
 
 ```mysql
 #题目：现在运营同学想要用户的设备id对应的性别、年龄和学校的数据，请你取出相应数据
-select device_id,gender,age,university from user_profile;
+select device_id,gender,age,university
+from user_profile;
 ```
 
 ### 简单处理查询结果
@@ -23,7 +25,8 @@ select device_id,gender,age,university from user_profile;
 ```mysql
 #题目：现在运营需要查看用户来自于哪些学校，请从用户信息表中取出学校的去重数据。
 #distinct column_name:对该列去重
-select distinct university from user_profile;
+select distinct university
+from user_profile;
 ```
 
 #### SQL4 查询结果限制返回行数
@@ -34,7 +37,10 @@ select distinct university from user_profile;
 #limit 5 5:返回行6~10
 #limit 5 -1:返回行6~最后一条
 #limit 5:返回前5行
-select device_id from user_profile order by id limit 2;
+select device_id
+from user_profile
+order by id
+limit 2;
 ```
 
 #### SQL5 将查询后的列重新命名
@@ -42,6 +48,98 @@ select device_id from user_profile order by id limit 2;
 ```mysql
 #题目：现在你需要查看前2个用户明细设备ID数据，并将列名改为 'user_infos_example',，请你从用户信息表取出相应结果。
 #as可省略
-select device_id as user_infos_example from user_profile order by id limit 2;
+select device_id as user_infos_example
+from user_profile
+order by id
+limit 2;
+```
+
+## 二、条件查询
+
+### 基础排序
+
+#### SQL36 查找后排序
+
+```mysql
+#题目：现在运营想要取出用户信息表中的用户年龄，请取出相应数据，并按照年龄升序排序。
+select device_id,age
+from user_profile
+order by age asc;
+```
+
+#### SQL37 查找后多列排序
+
+```mysql
+#题目：现在运营想要取出用户信息表中的年龄和gpa数据，并先按照gpa升序排序，再按照年龄升序排序输出，请取出相应数据。
+#不需要两个order by，一个order by即可，然后两个需要排序的字段用逗号隔开，顺序是从左到右
+select device_id,gpa,age
+from user_profile
+order by gpa asc,age asc;
+```
+
+#### SQL38 查找后降序排列
+
+```mysql
+#题目：现在运营想要取出用户信息表中对应的数据，并先按照gpa、年龄降序排序输出，请取出相应数据。
+select device_id,gpa,age
+from user_profile
+order by gpa desc,age desc;
+```
+
+### 基础操作符
+
+#### SQL6 查找学校是北大的学生信息
+
+```mysql
+#题目：现在运营想要筛选出所有北京大学的学生进行用户调研，请你从用户信息表中取出满足条件的数据，结果返回设备id和学校。
+select device_id,university
+from user_profile
+where university='北京大学';
+```
+
+#### SQL7 查找年龄大于24岁的用户信息
+
+```mysql
+#题目：现在运营想要针对24岁以上的用户开展分析，请你取出满足条件的设备ID、性别、年龄、学校。
+select device_id,gender,age,university
+from user_profile
+where age>24;
+```
+
+#### SQL8 查找某个年龄段的用户信息
+
+```mysql
+#题目：现在运营想要针对20岁及以上且23岁及以下的用户开展分析，请你取出满足条件的设备ID、性别、年龄。
+select device_id,gender,age
+from user_profile
+where age between 20 and 23;
+```
+
+#### SQL9 查找除复旦大学的用户信息
+
+```mysql
+#题目：现在运营想要查看除复旦大学以外的所有用户明细，请你取出相应数据
+select device_id,gender,age,university
+from user_profile
+where university != '复旦大学';
+```
+
+#### SQL10 用where过滤空值练习
+
+```mysql
+#题目：现在运营想要对用户的年龄分布开展分析，在分析时想要剔除没有获取到年龄的用户，请你取出所有年龄值不为空的用户的设备ID，性别，年龄，学校的信息。
+
+#解法1
+select device_id,gender,age,university
+from user_profile
+where age;
+#解法2
+select device_id,gender,age,university
+from user_profile
+where age is not NULL;
+#解法3
+select device_id,gender,age,university
+from user_profile
+where age!='';
 ```
 
