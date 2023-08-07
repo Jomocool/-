@@ -191,3 +191,82 @@ from user_profile
 where university like '%北京%';
 ```
 
+## 三、高级查询
+
+### 计算函数
+
+#### SQL16 查找GPA最高值
+
+```mysql
+#题目：运营想要知道复旦大学学生gpa最高值是多少，请你取出相应数据
+
+#方法一：order by,limit
+select gpa
+from user_profile
+where university='复旦大学'
+order by gpa desc
+limit 1;
+#方法二：max()
+select max(gpa) as gpa
+from user_profile
+where university='复旦大学';
+```
+
+#### SQL17 计算男生人数以及平均GPA
+
+```mysql
+#题目：现在运营想要看一下男性用户有多少人以及他们的平均gpa是多少，用以辅助设计相关活动，请你取出相应数据。
+select count(gender) as male_num,avg(gpa) as avg_gpa
+from user_profile
+where gender='male';
+```
+
+### 分组查询
+
+#### SQL18 分组计算练习题
+
+```mysql
+#题目：现在运营想要对每个学校不同性别的用户活跃情况和发帖数量进行分析，请分别计算出每个学校每种性别的用户数、30天内平均活跃天数和平均发帖数量。
+问题分解：
+1. 限定条件：无
+2. 每个学校每种性别：按性别和学校分组(group by gender,university)
+3. 用户数(count(device_id))
+4. 30天内平均活跃天数(保留1位小数)(round(avg(active_days_within_30),1) as avg_active_day)
+5. 平均发帖数量(保留一位小数)(round(avg(question_cnt),1) as avg_question_cnt)
+
+select 
+    gender,university,
+    count(device_id) as user_num,
+    round(avg(active_days_within_30),1) as avg_active_day,
+    round(avg(question_cnt),1) as avg_question_cnt
+from user_profile
+group by gender,university;
+```
+
+#### SQL19 分组过滤练习题
+
+```mysql
+#题目：现在运营想查看每个学校用户的平均发贴和回帖情况，寻找低活跃度学校进行重点运营，请取出平均发贴数低于5的学校或平均回帖数小于20的学校。
+#由于本题是按学校来统计的，所以需要先分组再过滤，因此应该用group by,having组合，而不是where,group by组合了，以上二者的顺序是不可逆的
+
+select 
+    university,
+    round(avg(question_cnt),3) as avg_question_cnt,
+    round(avg(answer_cnt),3) as avg_answer_cnt
+from user_profile
+group by university
+having avg_question_cnt<5 or avg_answer_cnt<20;#可以直接利用上面已经计算过的值
+```
+
+#### SQL20 分组排序练习题
+
+```mysql
+#题目：现在运营想要查看不同大学的用户平均发帖情况，并期望结果按照平均发帖情况进行升序排列，请你取出相应数据。
+select
+    university,
+    round(avg(question_cnt),4) as avg_question_cnt
+from user_profile
+group by university
+order by avg_question_cnt;
+```
+
